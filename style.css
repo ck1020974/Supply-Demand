@@ -1,0 +1,347 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.game-container {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    padding: 25px;
+    max-width: 700px;
+    width: 100%;
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 2.5fr 0.8fr 0.8fr;
+    grid-template-areas: 
+        "question question"
+        "optionA optionB"
+        "optionC optionD";
+    gap: 20px;
+    min-height: 500px;
+}
+
+.question-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.score-bar {
+    background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 15px;
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+    box-shadow: 0 3px 10px rgba(108, 92, 231, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.timer-bar {
+    background: linear-gradient(135deg, #fd79a8, #fdcb6e);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 15px;
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+    box-shadow: 0 3px 10px rgba(253, 121, 168, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.question-box {
+    grid-area: question;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    color: #495057;
+    padding: 20px;
+    border-radius: 15px;
+    font-size: 24px;
+    line-height: 1.6;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    text-align: center;
+    border: 2px solid #dee2e6;
+    position: relative;
+}
+
+.question-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin: 15px 0;
+}
+
+.question-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+}
+
+.sentence-first {
+    margin-bottom: 8px;
+    font-size: 26px;
+}
+
+.sentence-second {
+    font-size: 26px;
+}
+
+.sentence-single {
+    font-size: 28px;
+}
+
+.options-container {
+    display: none;
+}
+
+.option {
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 15px;
+    padding: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 24px;
+    font-weight: bold;
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.option:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.option.A {
+    grid-area: optionA;
+    background: linear-gradient(135deg, #ff4757, #ff3742);
+    color: white;
+    border-color: #ff4757;
+    box-shadow: 0 5px 15px rgba(255, 71, 87, 0.3);
+}
+
+.option.B {
+    grid-area: optionB;
+    background: linear-gradient(135deg, #3742fa, #5352ed);
+    color: white;
+    border-color: #3742fa;
+    box-shadow: 0 5px 15px rgba(55, 66, 250, 0.3);
+}
+
+.option.C {
+    grid-area: optionC;
+    background: linear-gradient(135deg, #ffa502, #ff6348);
+    color: white;
+    border-color: #ffa502;
+    box-shadow: 0 5px 15px rgba(255, 165, 2, 0.3);
+}
+
+.option.D {
+    grid-area: optionD;
+    background: linear-gradient(135deg, #2ed573, #1e90ff);
+    color: white;
+    border-color: #2ed573;
+    box-shadow: 0 5px 15px rgba(46, 213, 115, 0.3);
+}
+
+
+.option.selected {
+    transform: scale(1.05);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+}
+
+.option-letter {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: bold;
+    color: #333;
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.feedback-overlay {
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 15px;
+    font-size: 16px;
+    font-weight: bold;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    pointer-events: none;
+}
+
+.feedback-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.feedback-overlay.correct {
+    background: rgba(46, 213, 115, 0.9);
+}
+
+.feedback-overlay.incorrect {
+    background: rgba(255, 71, 87, 0.9);
+}
+
+.next-button {
+    background: linear-gradient(45deg, #00b894, #00cec9);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    padding: 10px 20px;
+    border-radius: 15px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    opacity: 0;
+    visibility: hidden;
+    box-shadow: 0 4px 12px rgba(0, 184, 148, 0.3);
+}
+
+.next-button.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.next-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 184, 148, 0.5);
+}
+
+@media (max-width: 768px) {
+    .game-container {
+        grid-template-columns: 1fr;
+        grid-template-areas: 
+            "question"
+            "optionA"
+            "optionB"
+            "optionC"
+            "optionD"
+            "explanation";
+        gap: 20px;
+    }
+    
+    .score-bar {
+        top: 15px;
+        right: 15px;
+        padding: 8px 15px;
+        font-size: 14px;
+    }
+    
+    .question-box {
+        font-size: 20px;
+        padding: 25px;
+        min-height: 150px;
+    }
+    
+    .option {
+        font-size: 16px;
+        padding: 15px;
+    }
+    
+    .explanation-area {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .feedback {
+        margin-right: 0;
+        margin-bottom: 15px;
+    }
+}
+
+.question-box.game-over {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .option.is-hidden {
+    visibility: hidden;
+  }
+
+  .summary-card {
+    background: white;
+    border: 2px dashed #d9d9d9;
+    border-radius: 14px;
+    padding: 12px 16px;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    box-shadow: 0 5px 14px rgba(0,0,0,.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* 結束畫面：縮短題目框，並允許內部絕對定位 */
+.question-box.gameover {
+    min-height: 120px;   /* 你要的較矮外框，可自行調整 */
+    height: auto;
+    position: relative;  /* 供內部絕對定位基準 */
+  }
+  
+  /* 讓內層容器有固定參考高度，不被內容撐大 */
+  .question-box.gameover .question-content {
+    min-height: 80px;    /* 讓標題有空間顯示 */
+    position: relative;  /* 供按鈕絕對定位基準 */
+  }
+  
+  /* 結束畫面的按鈕：絕對定位到較下方，不會撐高外框 */
+  .gameover-btn {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 90px;           /* 按鈕往下的位置，數字越大越低，可微調 */
+  }
+  
+  /* 避免標題外距撐高外框 */
+  .question-box.gameover h2 {
+    margin: 0;
+    line-height: 1.2;
+  }
+
+  /* 指定卡片佔用的 grid 區域：下排兩格 */
+  .summary-card.bottom-left  { grid-area: optionA; }
+  .summary-card.bottom-right { grid-area: optionB; }
+
+  .question-box.gameover {
+    min-height: 120px;   /* 原本大概 200+，縮小一點 */
+    height: auto;        /* 自動高度 */
+  }

@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>供給需求小遊戲</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <div class="question-box" id="questionBox">
+            <div class="question-header">
+                <div class="timer-bar" id="timerBar">
+                    時間: <span id="timer">3:00</span>
+                </div>
+                <div class="score-bar">
+                    分數: <span id="score">0</span>
+                </div>
+            </div>
+            <div class="question-content" id="questionContent">
+                <div class="question-text" id="questionText">
+                    載入題目中...
+                </div>
+            </div>
+            <div class="question-footer">
+                <div class="feedback-overlay" id="feedbackOverlay"></div>
+                <button class="next-button" id="nextButton" onclick="nextQuestion()">下一題</button>
+            </div>
+        </div>
+        
+        <div class="option A" onclick="selectOption('A')">
+            <div class="option-letter">A</div>
+            需求增加
+        </div>
+        <div class="option B" onclick="selectOption('B')">
+            <div class="option-letter">B</div>
+            需求減少
+        </div>
+        <div class="option C" onclick="selectOption('C')">
+            <div class="option-letter">C</div>
+            供給增加
+        </div>
+        <div class="option D" onclick="selectOption('D')">
+            <div class="option-letter">D</div>
+            供給減少
+        </div>
+    </div>
+
+    <script>
+    let currentScore = 0;
+    let selectedOption = null;
+    let currentQuestionIndex = 0;
+    let allQuestions = [];
+    let gameQuestions = [];
+    let timeLeft = 180; // 測試用：10 秒
+    let timerInterval = null;
+    let gameEnded = false;
+    let questionStartTime = 0; // 記錄題目開始時間
+    let totalQuestionsAnswered = 0; // 總答題數
+    let correctCount = 0; // ✅ 新增：答對題數
+
+    // 載入題目資料
+    async function loadQuestions() {
+    try {
+        const response = await fetch('questions.json');
+        allQuestions = await response.json();
+        startNewGame();
+    } catch (error) {
+        console.error('載入題目失敗:', error);
+        alert('載入題目失敗，請確認 questions.json 檔案存在');
+    }
+    }
+
+    // 開始新遊戲，無限答題
+    function startNewGame() {
+    // 清理 summary 卡
+    document.querySelectorAll('.summary-card').forEach(n => n.remove());
+    // 顯示四個選項 & 取消隱藏
+    document.querySelectorAll('.option').forEach(opt => {
+        opt.style.display = 'flex';
+        opt.classList.remove('is-hidden'); // ✅ 解除 visibility:hidden
+        opt.classList.remove('selected');
+        opt.style.border = '';
+        opt.style.boxShadow = '';
+    });
+
+    // 隱藏回饋與下一題
+    document.getElementById('feedbackOverlay').classList.remove('show');
+    document.getElementById('nextButton').classList.remove('show');
+
+    // 重置遊戲狀態
+    const shuffled = [...allQuestions].sort(() => Math.random() - 0.5);
+    gameQuestions = shuffled;
+    currentQuestionIndex = 0;
+    currentScore = 0;
+    totalQuestionsAnswered = 0;
+    correctCount = 0;                 // ✅ 重置答對題數
+    timeLeft = 180;                    // 需要 3 分鐘時改回 180
+    gameEnded = false;
+    selectedOption = null;
+
+    document.getElementById('score').textContent = currentScore;
+    updateTimer();
+    startTimer();
+    loadQuestion();
+    }
+
+    // 開始計時器
+    function startTimer() {
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+        timeLeft--;
+        updateTimer();
+        if (timeLeft <= 0) {
+        endGameByTime();
+        }
+    }, 1000);
+    }
+
+    // 更新計時器顯示
+    function updateTimer() {
+    const minutes = Math.floor(timeLeft / 60);
+    const seconds = timeLeft % 60;
+    const timerText = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    document.getElementById('timer').textContent = timerText;
+    }
+
+    // 時間到結束遊戲
+    function endGameByTime() {
+    gameEnded = true;
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+    showGameOver();
+    }
+
+    // 格式化題目文字，將底線文字轉為粗體並拆分句子
+    function formatQuestionText(text) {
+    // 先處理底線文字
+    let formatted = text.replace(/__([^__]+)__/g, '<strong>$1</strong>');
+    // 以標點符號為界拆分句子
+    const sentences = formatted.split(/[，。、]/);
+    if (sentences.length >= 2) {
+        const firstSentence = sentences[0].trim();
+        const remainingSentences = sentences.slice(1).join('').trim();
+        return `<div class="sentence-first">${firstSentence}</div><div class="sentence-second">${remainingSentences}</div>`;
+    } else {
+        return `<div class="sentence-single">${formatted}</div>`;
+    }
+    }
+
+    // 根據答案文字轉換為選項代碼
+    function getCorrectAnswerOption(answerText) {
+    switch (answerText) {
+        case '需求增加': return 'A';
+        case '需求減少': return 'B';
+        case '供給增加': return 'C';
+        case '供給減少': return 'D';
+        default: return 'A';
+    }
+    }
+
+    function selectOption(option) {
+    if (selectedOption || gameEnded) return; // 防止重複選擇或遊戲結束後選擇
+
+    selectedOption = option;
+
+    // 移除所有選項的選中狀態
+    document.querySelectorAll('.option').forEach(opt => {
+        opt.classList.remove('selected');
+    });
+
+    // 添加選中狀態
+    document.querySelector(`.option.${option}`).classList.add('selected');
+
+    // 檢查答案
+    const currentQuestion = gameQuestions[currentQuestionIndex];
+    const correctAnswer = getCorrectAnswerOption(currentQuestion.answer);
+    const isCorrect = option === correctAnswer;
+
+    // 計算答題時間（秒）
+    const answerTime = Math.floor((Date.now() - questionStartTime) / 1000);
+
+    // 計算分數
+    if (isCorrect) {
+        let points = 10; // 基礎分數
+        // 速度加分：10秒內答對有額外加分
+        if (answerTime <= 10) {
+        const speedBonus = Math.max(0, 5 - Math.floor(answerTime / 2));
+        points += speedBonus;
+        }
+        currentScore += points;
+        correctCount++; // ✅ 答對 +1
+    } else {
+        // 答錯扣10分，但不低於0
+        currentScore = Math.max(0, currentScore - 10);
+    }
+
+    totalQuestionsAnswered++;
+    document.getElementById('score').textContent = currentScore;
+
+    // 顯示正確答案
+    highlightCorrectAnswer(correctAnswer);
+
+    // 顯示簡化的反饋
+    showSimpleFeedback(isCorrect, answerTime);
+
+    // 顯示下一題按鈕
+    document.getElementById('nextButton').classList.add('show');
+    }
+
+    function showSimpleFeedback(isCorrect, answerTime) {
+    const feedbackOverlay = document.getElementById('feedbackOverlay');
+    let feedbackText = isCorrect ? '正確！' : '錯誤！';
+
+    feedbackOverlay.textContent = feedbackText;
+    feedbackOverlay.className = `feedback-overlay ${isCorrect ? 'correct' : 'incorrect'} show`;
+    // 不再自動隱藏，持續顯示直到點擊下一題
+    }
+
+    function highlightCorrectAnswer(correctAnswer) {
+    document.querySelectorAll('.option').forEach(opt => {
+        if (opt.classList.contains(correctAnswer)) {
+        opt.style.border = '3px solid #2ed573';
+        opt.style.boxShadow = '0 0 20px rgba(46, 213, 115, 0.5)';
+        }
+    });
+    }
+
+    function nextQuestion() {
+    if (gameEnded) return;
+
+    currentQuestionIndex++;
+
+    // 如果題目用完，重新打亂並從頭開始
+    if (currentQuestionIndex >= gameQuestions.length) {
+        const shuffled = [...allQuestions].sort(() => Math.random() - 0.5);
+        gameQuestions = shuffled;
+        currentQuestionIndex = 0;
+    }
+
+    // 載入下一題
+    loadQuestion();
+    }
+
+    function endGameByCompletion() {
+    gameEnded = true;
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+    showGameOver();
+    }
+
+    function loadQuestion() {
+    const question = gameQuestions[currentQuestionIndex];
+    const formattedQuestion = formatQuestionText(question.question);
+    document.getElementById('questionText').innerHTML = formattedQuestion;
+
+    // 記錄題目開始時間
+    questionStartTime = Date.now();
+
+    // 重置狀態
+    selectedOption = null;
+    document.getElementById('nextButton').classList.remove('show');
+    document.getElementById('feedbackOverlay').classList.remove('show');
+
+    // 重置選項樣式
+    document.querySelectorAll('.option').forEach(opt => {
+        opt.classList.remove('selected');
+        opt.style.border = '';
+        opt.style.boxShadow = '';
+    });
+    }
+
+    function showGameOver() {
+    const questionBox = document.getElementById('questionBox');
+    questionBox.classList.add('gameover'); // 啟用結束樣式（縮短外框）
+
+    // 題目區：標題 + 按鈕（按鈕用絕對定位，不會把外框撐大）
+    document.getElementById('questionText').innerHTML = `
+        <h2>時間到！遊戲結束！</h2>
+        <button class="gameover-btn" onclick="startNewGame()"
+        style="padding:12px 24px; background:linear-gradient(45deg,#00b894,#00cec9);
+                color:#fff; border:none; border-radius:20px; font-size:18px; cursor:pointer;">
+        再玩一次
+        </button>
+    `;
+
+  // 隱藏四個選項（保留位置）
+  document.querySelectorAll('.option').forEach(opt => {
+    opt.classList.add('is-hidden'); // visibility: hidden
+    opt.classList.remove('selected');
+    opt.style.border = '';
+    opt.style.boxShadow = '';
+  });
+  document.getElementById('feedbackOverlay').classList.remove('show');
+  document.getElementById('nextButton').classList.remove('show');
+
+  // 清掉舊的 summary 卡
+  document.querySelectorAll('.summary-card').forEach(n => n.remove());
+
+  // 建立兩張下方統計卡
+  const gc = document.querySelector('.game-container');
+
+  const cardC = document.createElement('div');
+  cardC.className = 'summary-card bottom-left';
+  cardC.textContent = `答對題數：${correctCount} 題`;
+
+  const cardD = document.createElement('div');
+  cardD.className = 'summary-card bottom-right';
+  cardD.textContent = `分數：${currentScore} 分`;
+
+  gc.append(cardC, cardD);
+}
+
+    // 頁面載入時開始遊戲
+    window.addEventListener('load', loadQuestions);
+    </script>
+</body>
+</html>
