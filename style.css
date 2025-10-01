@@ -260,7 +260,7 @@ body {
   .sentence-first,
   .sentence-second,
   .sentence-single {
-    font-size: 16px;   /* 保持統一縮小 */
+    font-size: 18px;   /* 保持統一縮小 */
     white-space: normal;   /* 允許正常換行 */
   }
 }
