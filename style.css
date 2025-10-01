@@ -253,9 +253,15 @@ body {
     gap: 20px;                       /* 間距稍微縮小 */
   }
 
-  .option {
-    font-size: 10px;   /* ➜ 字體縮小 */
-    padding: 10px;     /* ➜ 上下左右內距縮小 */
+  .question-box {
+    font-size: 18px;   /* 比電腦版小，避免過度換行 */
+    line-height: 1.4;  /* 稍微緊湊 */
+  }
+  .sentence-first,
+  .sentence-second,
+  .sentence-single {
+    font-size: 12px;   /* 保持統一縮小 */
+    white-space: normal;   /* 允許正常換行 */
   }
 }
     
