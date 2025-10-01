@@ -245,17 +245,17 @@ body {
 
 @media (max-width: 768px) {
   .game-container {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr;  /* ➜ 手機版仍然保持兩欄 */
     grid-template-areas:
       "question question"
       "optionA optionB"
-      "optionC optionD";
-    gap: 12px;
+      "optionC optionD";             /* ➜ 跟電腦版一樣 */
+    gap: 12px;                       /* 間距稍微縮小 */
   }
 
   .option {
-    font-size: 14px;
-    padding: 10px;
+    font-size: 10px;   /* ➜ 字體縮小 */
+    padding: 10px;     /* ➜ 上下左右內距縮小 */
   }
 }
     
