@@ -244,17 +244,15 @@ body {
 }
 
 @media (max-width: 768px) {
-    .game-container {
-        grid-template-columns: 1fr;
-        grid-template-areas: 
-            "question"
-            "optionA"
-            "optionB"
-            "optionC"
-            "optionD"
-            "explanation";
-        gap: 20px;
-    }
+  .game-container {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "question question"
+      "optionA optionB"
+      "optionC optionD";
+    gap: 12px;
+  }
+}
     
     .score-bar {
         top: 15px;
