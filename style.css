@@ -255,20 +255,10 @@ body {
 }
 
 @media (max-width: 768px) {
-  .question-text .sentence-first,
-  .question-text .sentence-second {
-    display: inline;
+  .question-text .line1,
+  .question-text .line2,
+  .question-text .line3 {
     font-size: 20px;
-    line-height: 1.6;
-  }
-
-  .question-text .sentence-first::after {
-    content: " ";
-  }
-
-  .question-text .sentence-single {
-    font-size: 20px;
-    line-height: 1.6;
   }
 }
     
