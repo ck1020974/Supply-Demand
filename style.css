@@ -252,13 +252,10 @@ body {
       "optionC optionD";
     gap: 12px;
   }
-}
 
-@media (max-width: 768px) {
-  .question-text .line1,
-  .question-text .line2,
-  .question-text .line3 {
-    font-size: 20px;
+  .option {
+    font-size: 14px;
+    padding: 10px;
   }
 }
     
