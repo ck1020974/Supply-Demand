@@ -250,7 +250,7 @@ body {
       "question question"
       "optionA optionB"
       "optionC optionD";             /* ➜ 跟電腦版一樣 */
-    gap: 12px;                       /* 間距稍微縮小 */
+    gap: 20px;                       /* 間距稍微縮小 */
   }
 
   .option {
